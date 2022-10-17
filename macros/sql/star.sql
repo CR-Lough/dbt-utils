@@ -1,4 +1,4 @@
-{% macro star(from, relation_alias=False, except=[], prefix='', suffix='') -%}
+{% macro star(from, relation_alias=False, except=[], prefix='', suffix='', quote_identifiers=True) -%}
     {{ return(adapter.dispatch('star', 'dbt_utils')(from, relation_alias, except, prefix, suffix, quote_identifiers)) }}
 {% endmacro %}
 
@@ -19,9 +19,9 @@
         {%- for col in cols %}
             {%- if relation_alias %}{{ relation_alias }}.{% else %}{%- endif -%}
                 {%- if quote_identifiers -%}
-                    {{ col|trim }} {%- if prefix!='' or suffix!='' %} as {{ (prefix ~ col ~ suffix)|trim }} {%- endif -%}
-                {% else %}
                     {{ adapter.quote(col)|trim }} {%- if prefix!='' or suffix!='' %} as {{ adapter.quote(prefix ~ col ~ suffix)|trim }} {%- endif -%}
+                {% elif quote_identifiers==False %}
+                    {{ col|trim }} {%- if prefix!='' or suffix!='' %} as {{ (prefix ~ col ~ suffix)|trim }} {%- endif -%}
                 {% endif %}
             {%- if not loop.last %},{{ '\n  ' }}{% endif %}
         {%- endfor -%}
